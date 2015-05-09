@@ -1,7 +1,7 @@
 # Sierpinski
 A javascript Sierpinski fractal demo, just for fun!
 
-Try it out here: http://cdn.rawgit.com/mrtimuk/sierpinski/master/sierpinski.html
+Try it out here: http://mrtimuk.github.io/sierpinski/
 
 Tick some checkboxes to form the seed pattern that you want, then click the `+` and `-` buttons to draw the fractal.
 

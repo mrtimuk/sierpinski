@@ -1,16 +1,19 @@
 <!DOCTYPE html>
+<!-- Project page http://github.com/mrtimuk/sierpinski -->
 <html>
 <head>
 <meta charset="utf-8"/>
-<title>Sierpinski</title>
+<title>Sierpinski Fractals</title>
 </head>
 
 <body>
-
-<script >
+<script type="text/javascript">
+// Create a canvas if we can, otherwise use svg
 var elem = document.createElement('canvas');
+var useSvg = 0;
 if (!elem) {
 	elem = document.createElement('svg');
+	useSvg = 1;
 }
 elem.setAttribute("id","cont");
 elem.width = elem.height = elem.style.width = elem.style.height = 729;
@@ -18,7 +21,7 @@ elem.style.float = "left";
 document.body.appendChild(elem);
 </script>
 
-<div style="float:left; padding: 10px;">
+<div style="float:left; padding: 10px">
 	Iterations:<br> 
 	<input onkeyup="render()" id="edt_n" value="0" maxLength="2" size="2"/>
 	<button onclick="decr()">-</button>
@@ -40,7 +43,9 @@ document.body.appendChild(elem);
 	<input id="c22" type="checkbox" checked="1"/>
 	</div>
 
-
+	<div style="margin-top:150px">
+	<a href="http://github.com/mrtimuk/sierpinski" style="color:grey">http://github.com/mrtimuk/sierpinski</a>
+	</div>
 </div>
 
 <script type="text/javascript">
@@ -90,7 +95,7 @@ document.body.appendChild(elem);
 	}
 
 	function clear() {
-		if (cont.tagName == "SVG") {
+		if (useSvg) {
 			cont.innerHTML = '';
 		} else {
 			var ctx = cont.getContext("2d");
@@ -102,7 +107,7 @@ document.body.appendChild(elem);
 	}
 
 	function pixel(x,y,size,cont) {
-		if (cont.tagName == "SVG") {
+		if (useSvg) {
 			var rect = document.createElementNS(xmlns, 'rect');
 			rect.setAttribute('x', x );
 			rect.setAttribute('y', y );
@@ -110,7 +115,7 @@ document.body.appendChild(elem);
 			rect.setAttribute('height', size);
 			rect.setAttribute('style', 'fill:rgb(0,0,128);');
 			cont.appendChild(rect);
-		} else if (cont.tagName = "CANVAS") {
+		} else {
 			var ctx = cont.getContext("2d");
 			ctx.fillRect(x,y,size,size);
 		}

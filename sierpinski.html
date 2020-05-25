@@ -8,86 +8,99 @@
 
 <body>
 <script type="text/javascript">
-// Create a canvas if we can, otherwise use svg
-var elem = document.createElement('canvas');
-var useSvg = 0;
-if (!elem) {
-	elem = document.createElement('svg');
-	useSvg = 1;
-}
-elem.setAttribute("id","cont");
-elem.width = elem.height = elem.style.width = elem.style.height = 729;
-elem.style.float = "left";
-document.body.appendChild(elem);
+	// Create a canvas if we can, otherwise use svg
+	const elem = document.createElement('canvas');
+	const useSvg = 0;
+	if (!elem) {
+		elem = document.createElement('svg');
+		useSvg = 1;
+	}
+	elem.setAttribute("id","canvas");
+	elem.width = elem.height = 600;
+	elem.style.width = elem.style.height = "600px";
+	elem.style.float = "left";
+	document.body.appendChild(elem);
 </script>
 
 <div style="float:left; padding: 10px">
-	Iterations:<br> 
-	<input onkeyup="render()" id="edt_n" value="0" maxLength="2" size="2"/>
-	<button onclick="decr()">-</button>
-	<button onclick="incr()">+</button>
+<div>
+	<p>
+		Iterations:<br> 
+		<input onkeyup="render()" id="iters" value="3" maxLength="1" size="1" />
+		<button id="decr">-</button>
+		<button id="incr">+</button>
+	</p>
+	<p>
+		Pattern:<br>
+		<input id="c00" type="checkbox" checked="1" />
+		<input id="c01" type="checkbox" checked="1" />
+		<input id="c02" type="checkbox" checked="1" />
+		<input id="c03" type="checkbox" checked="1" />
+		<br>
+		<input id="c10" type="checkbox" />
+		<input id="c11" type="checkbox" checked="1" />
+		<input id="c12" type="checkbox" />
+		<input id="c13" type="checkbox" checked="1" />
+		<br>
+		<input id="c20" type="checkbox" />
+		<input id="c21" type="checkbox" />
+		<input id="c22" type="checkbox" checked="1" />
+		<input id="c23" type="checkbox" checked="1" />
+		<br>
+		<input id="c30" type="checkbox" />
+		<input id="c31" type="checkbox" />
+		<input id="c32" type="checkbox" />
+		<input id="c33" type="checkbox" checked="1" />
+	</p>
+</div>
 
-	<div>
-	<br>
-	Pattern:<br>
-	<input id="c00" type="checkbox" checked="1"/>
-	<input id="c01" type="checkbox" checked="1"/>
-	<input id="c02" type="checkbox" checked="1"/>
-	<br>
-	<input id="c10" type="checkbox" checked="1"/>
-	<input id="c11" type="checkbox"/>
-	<input id="c12" type="checkbox" checked="1"/>
-	<br>
-	<input id="c20" type="checkbox" checked="1"/>
-	<input id="c21" type="checkbox" checked="1"/>
-	<input id="c22" type="checkbox" checked="1"/>
-	</div>
-
-	<div style="margin-top:150px">
+<div style="margin-top:150px">
 	<a href="http://github.com/mrtimuk/sierpinski" style="color:grey">http://github.com/mrtimuk/sierpinski</a>
-	</div>
+</div>
 </div>
 
 <script type="text/javascript">
-	var cont = document.getElementById('cont');
-	var edt_n = document.getElementById('edt_n');
-	
-	xmlns = "http://www.w3.org/2000/svg";
+	const xmlns = "http://www.w3.org/2000/svg";
+	const canvas = document.getElementById('canvas');
+	const elIters = document.getElementById('iters');
 
-	function incr() {
-		edt_n.value++;
+	document.getElementById("incr").addEventListener("click", () => {
+		elIters.value++;
 		render();
-	}
-	function decr() {
-		if (edt_n.value > 0) { edt_n.value--; }
+	});
+	document.getElementById("decr").addEventListener("click", () => {
+		if (elIters.value > 0) { elIters.value--; }
 		render();
-	}
-
-	var pattern = [[],[],[]];
+	});
 
 	function render() {
-		var n = edt_n.value;
-		var size = cont.width;
-		clear();
+		const size = canvas.width;
 
-		for (var j = 0; j < 3; j++){
-			for (var i = 0; i < 3; i++) {
+		let pattern = [[],[],[],[]];
+		for (let j = 0; j < 4; j++){
+			for (let i = 0; i < 4; i++) {
 				pattern[i][j] = document.getElementById("c"+j+i).checked;
 			}
 		}
 
-		fractal(0,0,size,cont,n);
+		clear();
+		fractal(pattern, 0, 0, size, canvas, elIters.value);
 	}
 
-	function fractal(x,y,s,c,n) {
-		if (n == 0 || s == 1) {
-			pixel(x,y,s,c);
+	for (let j = 0; j < 4; j++){
+		for (let i = 0; i < 4; i++) {
+			document.getElementById("c"+j+i).addEventListener("click", render);
+		}}
+
+	function fractal(pattern, x, y, size, canvas, n) {
+		if (n == 0 || size == 1) {
+			pixel(x, y, size, canvas);
 		} else {
-			s = s/3;
-			for (var j = 0; j < 3; j++){
-				for (var i = 0; i < 3; i++) {
+			size = size/4;
+			for (let j = 0; j < 4; j++){
+				for (let i = 0; i < 4; i++) {
 					if (pattern[i][j]) {
-						fractal(x+s*i, y+s*j, s, c, n-1);
+						fractal(pattern, x+size*i, y+size*j, size, canvas, n-1);
 					}
 				}
 			}
@@ -98,15 +111,15 @@ document.body.appendChild(elem);
 		if (useSvg) {
 			cont.innerHTML = '';
 		} else {
-			var ctx = cont.getContext("2d");
+			var ctx = canvas.getContext("2d");
 			ctx.imageSmoothingEnabled= false
 			ctx.fillStyle = '#fff';
-			ctx.fillRect (0,0,cont.width,cont.height);
+			ctx.fillRect (0,0,canvas.width,canvas.height);
 			ctx.fillStyle = '#008';
 		} 
 	}
 
-	function pixel(x,y,size,cont) {
+	function pixel(x, y, size, canvas) {
 		if (useSvg) {
 			var rect = document.createElementNS(xmlns, 'rect');
 			rect.setAttribute('x', x );
@@ -116,10 +129,11 @@ document.body.appendChild(elem);
 			rect.setAttribute('style', 'fill:rgb(0,0,128);');
 			cont.appendChild(rect);
 		} else {
-			var ctx = cont.getContext("2d");
+			var ctx = canvas.getContext("2d");
 			ctx.fillRect(x,y,size,size);
 		}
 	}
+	render();
 </script>
 </body>
 </html>

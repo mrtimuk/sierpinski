@@ -1,139 +1,177 @@
 <!DOCTYPE html>
 <!-- Project page http://github.com/mrtimuk/sierpinski -->
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8"/>
 <title>Sierpinski Fractals</title>
+
+<style>
+    #canvas {
+        transform: translate(150px,150px) rotate(-45deg);
+        width: 600px;
+        height: 600px;
+        position: absolute;
+        box-shadow: 0px 0px 20px #eee;
+    }
+    #pattern {
+        line-height: 120%;
+        transform: scale(1.3) translate(20px,20px) rotate(-45deg);
+        width: 100px;
+        margin-bottom: 80px;
+
+    }
+    #pattern input {
+        margin: 0;
+    }
+    #github-link {
+        position: absolute;
+        margin-left: 600px;
+    }
+    #iters {
+        font-size: 150%;
+    }
+    button {
+        font-size: 120%;
+    }
+    rect {
+        fill:rgb(0,0,128);
+    }
+</style>
 </head>
 
 <body>
 <script type="text/javascript">
-	// Create a canvas if we can, otherwise use svg
-	const elem = document.createElement('canvas');
-	const useSvg = 0;
-	if (!elem) {
-		elem = document.createElement('svg');
-		useSvg = 1;
-	}
-	elem.setAttribute("id","canvas");
-	elem.width = elem.height = 600;
-	elem.style.width = elem.style.height = "600px";
-	elem.style.float = "left";
-	document.body.appendChild(elem);
+    const svgns = "http://www.w3.org/2000/svg";
+    // Create a canvas if we can, otherwise use svg
+    let canvas = document.createElement('canvas');
+    let useSvg = 0;
+    if (!canvas.getContext) {
+        canvas = document.createElementNS(svgns, 'svg');
+        canvas.setAttribute("xmlns", svgns);
+        useSvg = 1;
+    }
+    canvas.setAttribute("id","canvas");
+    canvas.width = canvas.height = 600;
+    document.body.appendChild(canvas);
 </script>
 
-<div style="float:left; padding: 10px">
-<div>
-	<p>
-		Iterations:<br> 
-		<input onkeyup="render()" id="iters" value="3" maxLength="1" size="1" />
-		<button id="decr">-</button>
-		<button id="incr">+</button>
-	</p>
-	<p>
-		Pattern:<br>
-		<input id="c00" type="checkbox" checked="1" />
-		<input id="c01" type="checkbox" checked="1" />
-		<input id="c02" type="checkbox" checked="1" />
-		<input id="c03" type="checkbox" checked="1" />
-		<br>
-		<input id="c10" type="checkbox" />
-		<input id="c11" type="checkbox" checked="1" />
-		<input id="c12" type="checkbox" />
-		<input id="c13" type="checkbox" checked="1" />
-		<br>
-		<input id="c20" type="checkbox" />
-		<input id="c21" type="checkbox" />
-		<input id="c22" type="checkbox" checked="1" />
-		<input id="c23" type="checkbox" checked="1" />
-		<br>
-		<input id="c30" type="checkbox" />
-		<input id="c31" type="checkbox" />
-		<input id="c32" type="checkbox" />
-		<input id="c33" type="checkbox" checked="1" />
-	</p>
-</div>
-
-<div style="margin-top:150px">
-	<a href="http://github.com/mrtimuk/sierpinski" style="color:grey">http://github.com/mrtimuk/sierpinski</a>
-</div>
+<div style="padding: 10px">
+  <div id="github-link">
+    <a href="http://github.com/mrtimuk/sierpinski" style="color:grey">http://github.com/mrtimuk/sierpinski</a>
+  </div>
+    
+  <div>
+    <p>
+        Iterations:<br> 
+        <input type="number" id="iters" value="3" max="6" min="1" size="1" />
+    </p>
+    Pattern:
+    <div style="position: relative">
+        <div id="pattern">
+            <input id="c00" type="checkbox" checked="1" />
+            <input id="c01" type="checkbox" checked="1" />
+            <input id="c02" type="checkbox" checked="1" />
+            <input id="c03" type="checkbox" checked="1" />
+            <br>
+            <input id="c10" type="checkbox" />
+            <input id="c11" type="checkbox" checked="1" />
+            <input id="c12" type="checkbox" />
+            <input id="c13" type="checkbox" checked="1" />
+            <br>
+            <input id="c20" type="checkbox" />
+            <input id="c21" type="checkbox" />
+            <input id="c22" type="checkbox" checked="1" />
+            <input id="c23" type="checkbox" checked="1" />
+            <br>
+            <input id="c30" type="checkbox" />
+            <input id="c31" type="checkbox" />
+            <input id="c32" type="checkbox" />
+            <input id="c33" type="checkbox" checked="1" />
+        </div>
+        <button id="btnRandom">Randomise</button>
+    </div>
+  </div>
 </div>
 
 <script type="text/javascript">
-	const xmlns = "http://www.w3.org/2000/svg";
-	const canvas = document.getElementById('canvas');
-	const elIters = document.getElementById('iters');
+    const xmlns = "http://www.w3.org/2000/svg";
+    const elIters = document.getElementById('iters');
 
-	document.getElementById("incr").addEventListener("click", () => {
-		elIters.value++;
-		render();
-	});
-	document.getElementById("decr").addEventListener("click", () => {
-		if (elIters.value > 0) { elIters.value--; }
-		render();
-	});
+    function render() {
+        const size = 600;
 
-	function render() {
-		const size = canvas.width;
+        let pattern = [[],[],[],[]];
+        for (let j = 0; j < 4; j++){
+            for (let i = 0; i < 4; i++) {
+                pattern[i][j] = document.getElementById("c"+j+i).checked;
+            }
+        }
 
-		let pattern = [[],[],[],[]];
-		for (let j = 0; j < 4; j++){
-			for (let i = 0; i < 4; i++) {
-				pattern[i][j] = document.getElementById("c"+j+i).checked;
-			}
-		}
+        clear();
+        fractal(pattern, 0, 0, size, canvas, elIters.value);
+    }
 
-		clear();
-		fractal(pattern, 0, 0, size, canvas, elIters.value);
-	}
+    for (let j = 0; j < 4; j++){
+        for (let i = 0; i < 4; i++) {
+            document.getElementById("c"+j+i).addEventListener("click", render);
+        }}
 
-	for (let j = 0; j < 4; j++){
-		for (let i = 0; i < 4; i++) {
-			document.getElementById("c"+j+i).addEventListener("click", render);
-		}}
+    function fractal(pattern, x, y, size, context, n) {
+        console.log("fractal", x,y,size);
+        if (n == 0 || size == 1) {
+            pixel(x, y, size, context);
+        } else {
+            size = size/4;
+            for (let j = 0; j < 4; j++){
+                for (let i = 0; i < 4; i++) {
+                    if (pattern[i][j]) {
+                        fractal(pattern, x+size*i, y+size*j, size, context, n-1);
+                    }
+                }
+            }
+        }
+    }
 
-	function fractal(pattern, x, y, size, canvas, n) {
-		if (n == 0 || size == 1) {
-			pixel(x, y, size, canvas);
-		} else {
-			size = size/4;
-			for (let j = 0; j < 4; j++){
-				for (let i = 0; i < 4; i++) {
-					if (pattern[i][j]) {
-						fractal(pattern, x+size*i, y+size*j, size, canvas, n-1);
-					}
-				}
-			}
-		}
-	}
+    function clear() {
+        if (useSvg) {
+            canvas.innerHTML = '';
+        } else {
+            const ctx = canvas.getContext("2d");
+            ctx.imageSmoothingEnabled= false
+            ctx.fillStyle = '#fff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#008';
+        } 
+    }
 
-	function clear() {
-		if (useSvg) {
-			cont.innerHTML = '';
-		} else {
-			var ctx = canvas.getContext("2d");
-			ctx.imageSmoothingEnabled= false
-			ctx.fillStyle = '#fff';
-			ctx.fillRect (0,0,canvas.width,canvas.height);
-			ctx.fillStyle = '#008';
-		} 
-	}
+    function pixel(x, y, size, context) {
+        console.log("pixel", x,y,size);
+        if (useSvg) {
+            const rect = document.createElementNS(xmlns, 'rect');
+            rect.setAttribute('x', x);
+            rect.setAttribute('y', y);
+            rect.setAttribute('width', size);
+            rect.setAttribute('height', size);
+            context.appendChild(rect);
+        } else {
+            const ctx = context.getContext("2d");
+            ctx.fillRect(x,y,size,size);
+        }
+    }
+    render();
 
-	function pixel(x, y, size, canvas) {
-		if (useSvg) {
-			var rect = document.createElementNS(xmlns, 'rect');
-			rect.setAttribute('x', x );
-			rect.setAttribute('y', y );
-			rect.setAttribute('width', size);
-			rect.setAttribute('height', size);
-			rect.setAttribute('style', 'fill:rgb(0,0,128);');
-			cont.appendChild(rect);
-		} else {
-			var ctx = canvas.getContext("2d");
-			ctx.fillRect(x,y,size,size);
-		}
-	}
-	render();
+    document.getElementById('btnRandom').addEventListener('click', () => {
+        for (let j = 0; j < 4; j++){
+            const r = Math.round(Math.random() * 100000);
+            for (let i = 0; i < 4; i++) {
+                p = !!(r & (1 << i));
+                document.getElementById("c"+j+i).checked = p;
+            }
+        }
+        render();
+    });
+    
+    elIters.addEventListener("change", () => render());
 </script>
 </body>
 </html>

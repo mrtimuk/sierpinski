@@ -28,13 +28,19 @@
         margin-left: 600px;
     }
     #iters {
-        font-size: 150%;
+        font-size: 130%;
     }
     button {
         font-size: 120%;
     }
     rect {
         fill:rgb(0,0,128);
+    }
+    #canvas-container.eq {
+        transform: scale(0.6, 1);
+    }
+    .para {
+        margin-bottom: 10px;
     }
 </style>
 </head>
@@ -52,45 +58,52 @@
     }
     canvas.setAttribute("id","canvas");
     canvas.width = canvas.height = 600;
-    document.body.appendChild(canvas);
+    const container = document.createElement('div');
+    container.setAttribute('id', 'canvas-container');
+    container.setAttribute('class', 'eq');
+    container.appendChild(canvas);
+    document.body.appendChild(container);
 </script>
 
 <div style="padding: 10px">
-  <div id="github-link">
-    <a href="http://github.com/mrtimuk/sierpinski" style="color:grey">http://github.com/mrtimuk/sierpinski</a>
-  </div>
-    
-  <div>
-    <p>
-        Iterations:<br> 
-        <input type="number" id="iters" value="3" max="6" min="1" size="1" />
-    </p>
-    Pattern:
-    <div style="position: relative">
-        <div id="pattern">
-            <input id="c00" type="checkbox" checked="1" />
-            <input id="c01" type="checkbox" checked="1" />
-            <input id="c02" type="checkbox" checked="1" />
-            <input id="c03" type="checkbox" checked="1" />
-            <br>
-            <input id="c10" type="checkbox" />
-            <input id="c11" type="checkbox" checked="1" />
-            <input id="c12" type="checkbox" />
-            <input id="c13" type="checkbox" checked="1" />
-            <br>
-            <input id="c20" type="checkbox" />
-            <input id="c21" type="checkbox" />
-            <input id="c22" type="checkbox" checked="1" />
-            <input id="c23" type="checkbox" checked="1" />
-            <br>
-            <input id="c30" type="checkbox" />
-            <input id="c31" type="checkbox" />
-            <input id="c32" type="checkbox" />
-            <input id="c33" type="checkbox" checked="1" />
-        </div>
-        <button id="btnRandom">Randomise</button>
+    <div id="github-link">
+        <a href="http://github.com/mrtimuk/sierpinski" style="color:grey">http://github.com/mrtimuk/sierpinski</a>
     </div>
-  </div>
+
+    <div>
+        <div class="para">
+            <input type="number" id="iters" value="3" max="6" min="1" size="1" />
+            iterations
+        </div>
+        <div class="para">
+            Pattern:
+            <div style="position: relative">
+                <div id="pattern">
+                    <input id="c00" type="checkbox" checked="1" />
+                    <input id="c01" type="checkbox" checked="1" />
+                    <input id="c02" type="checkbox" checked="1" />
+                    <input id="c03" type="checkbox" checked="1" />
+                    <br>
+                    <input id="c10" type="checkbox" />
+                    <input id="c11" type="checkbox" checked="1" />
+                    <input id="c12" type="checkbox" />
+                    <input id="c13" type="checkbox" checked="1" />
+                    <br>
+                    <input id="c20" type="checkbox" />
+                    <input id="c21" type="checkbox" />
+                    <input id="c22" type="checkbox" checked="1" />
+                    <input id="c23" type="checkbox" checked="1" />
+                    <br>
+                    <input id="c30" type="checkbox" />
+                    <input id="c31" type="checkbox" />
+                    <input id="c32" type="checkbox" />
+                    <input id="c33" type="checkbox" checked="1" />
+                </div>
+            </div>
+            <button id="btnRandom">Randomise</button>
+        </div>
+        <div><label><input id="cEq" type="checkbox" checked>Equilateral</label></div>
+    </div>
 </div>
 
 <script type="text/javascript">
@@ -170,8 +183,17 @@
         }
         render();
     });
-    
+    const cEq = document.getElementById('cEq');
+    const canvasContainer = document.getElementById('canvas-container');
+    cEq.addEventListener('change', () => {
+        if (cEq.checked) {
+            canvasContainer.classList.add('eq');
+        } else {
+            canvasContainer.classList.remove('eq');
+        }
+    });
     elIters.addEventListener("change", () => render());
+
 </script>
 </body>
 </html>
